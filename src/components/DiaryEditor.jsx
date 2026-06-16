@@ -2,7 +2,7 @@
 // AI 감성 일기장의 메인 에디터 화면입니다.
 // 일기를 작성하면 OpenRouter API로 감성 분석(JSON: 감정/점수/코멘트/활동)을 받고,
 // (설정 시) 표지 이미지를 생성한 뒤 Firestore의 'diaries' 컬렉션에 저장합니다.
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
   addDoc,
@@ -10,13 +10,15 @@ import {
   serverTimestamp,
   Timestamp,
 } from "firebase/firestore";
-import { RefreshCw, Sparkles, X } from "lucide-react";
+import { Mic, Paperclip, RefreshCw, Sparkles, X } from "lucide-react";
 import { db } from "../firebase";
 import AiResult from "./AiResult";
+import MediaCapture from "./MediaCapture";
 import { buildAnalysisPrompt, parseAnalysis } from "../utils/aiAnalysis";
 import { generateCoverImage } from "../utils/coverImage";
 import { useCoverImageSetting } from "../hooks/useCoverImageSetting";
 import { useGuideQuestion } from "../hooks/useGuideQuestion";
+import { useVoiceInput } from "../hooks/useVoiceInput";
 import "./DiaryEditor.css";
 
 // OpenRouter 설정값 (.env 파일에서 불러옵니다)
@@ -88,11 +90,20 @@ function DiaryEditor({ user, onSaved }) {
   const [content, setContent] = useState(""); // 일기 원문
   const [analysis, setAnalysis] = useState(null); // {emotion,score,comment,activity,imagePrompt}
   const [coverImage, setCoverImage] = useState(null); // 표지 이미지 data URL
+  const [media, setMedia] = useState(null); // 첨부 사진/동영상 { type, dataUrl }
+  const [showCapture, setShowCapture] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [generatingCover, setGeneratingCover] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
+
+  // 🎤 음성 입력 — 전사된 텍스트를 본문 끝에 덧붙임
+  const appendTranscript = useCallback((text) => {
+    setContent((c) => (c ? `${c} ${text}` : text));
+    setSaved(false);
+  }, []);
+  const voice = useVoiceInput(appendTranscript);
 
   // 🤖 AI 감성 분석받기
   const handleAnalyze = async () => {
@@ -170,6 +181,7 @@ function DiaryEditor({ user, onSaved }) {
         // 구버전 화면/검색 호환을 위해 코멘트를 aiComment에도 보관
         aiComment: analysis?.comment || "",
         coverImage: coverImage || "",
+        media: media || null,
         userId: user.uid,
         // 캘린더에서 특정 날짜로 작성하면 그 날짜로, 아니면 서버 시간
         createdAt: dateParam
@@ -180,6 +192,7 @@ function DiaryEditor({ user, onSaved }) {
       setContent("");
       setAnalysis(null);
       setCoverImage(null);
+      setMedia(null);
       setSaved(true);
       if (onSaved) onSaved();
     } catch (err) {
@@ -252,6 +265,56 @@ function DiaryEditor({ user, onSaved }) {
         rows={8}
       />
 
+      {/* 음성 입력 + 사진/동영상 첨부 툴바 */}
+      <div className="diary-tools">
+        {voice.supported && (
+          <button
+            type="button"
+            className={`diary-tool ${voice.recording ? "recording" : ""}`}
+            onClick={voice.toggle}
+            disabled={voice.busy}
+          >
+            <Mic size={16} />
+            <span>
+              {voice.recording
+                ? "● 녹음 중 (탭하여 종료)"
+                : voice.busy
+                ? "음성 변환 중..."
+                : "음성 입력"}
+            </span>
+          </button>
+        )}
+        <button
+          type="button"
+          className="diary-tool"
+          onClick={() => setShowCapture(true)}
+        >
+          <Paperclip size={16} />
+          <span>사진·동영상</span>
+        </button>
+      </div>
+
+      {voice.error && <p className="diary-error">{voice.error}</p>}
+
+      {/* 첨부 미디어 미리보기 */}
+      {media && (
+        <div className="diary-media">
+          {media.type === "image" ? (
+            <img src={media.dataUrl} alt="첨부 사진" />
+          ) : (
+            <video src={media.dataUrl} controls playsInline />
+          )}
+          <button
+            type="button"
+            className="diary-media-remove"
+            onClick={() => setMedia(null)}
+            aria-label="첨부 제거"
+          >
+            <X size={16} />
+          </button>
+        </div>
+      )}
+
       <button
         type="button"
         className="diary-analyze-button"
@@ -300,6 +363,16 @@ function DiaryEditor({ user, onSaved }) {
 
       {error && <p className="diary-error">{error}</p>}
       {saved && <p className="diary-success">일기가 따뜻하게 보관되었어요 🌿</p>}
+
+      {showCapture && (
+        <MediaCapture
+          onCapture={(m) => {
+            setMedia(m);
+            setSaved(false);
+          }}
+          onClose={() => setShowCapture(false)}
+        />
+      )}
     </div>
   );
 }

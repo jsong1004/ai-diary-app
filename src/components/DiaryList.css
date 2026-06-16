@@ -124,7 +124,8 @@
   aspect-ratio: 4 / 3;
 }
 
-.diary-cover img {
+.diary-cover img,
+.diary-cover video {
   width: 100%;
   height: 100%;
   object-fit: cover;

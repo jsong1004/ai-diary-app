@@ -24,8 +24,10 @@
 ### 핵심
 - **🔐 Google 로그인** — Firebase Authentication (본인 데이터만 접근)
 - **📝 AI 감성 분석** — 일기를 분석해 `감정 / 점수(1~5) / 코멘트 / 추천 활동`을 JSON으로 반환, 카드 형태로 렌더링
+- **🎤 음성 입력** — 마이크로 말하면 OpenRouter 멀티모달(omni) 모델이 한국어로 받아쓰기해 본문에 추가 (무료 오디오 모델)
+- **📎 사진·동영상 첨부** — 카메라로 사진 촬영 또는 짧은(≤5초) 동영상 녹화, 파일 선택도 지원. 일기 카드/상세에 미디어 표시
 - **💾 일기 저장 & 목록** — Firestore 실시간 동기화, 감정별 그라데이션 표지 카드
-- **💗 AI 감성 상담 챗봇** — **일별 세션**으로 저장되어 지난 상담을 날짜별로 다시 볼 수 있음 (과거는 읽기 전용), 답변은 마크다운 렌더링
+- **💗 AI 감성 상담 챗봇** — **일별 세션**으로 저장되어 지난 상담을 날짜별로 다시 볼 수 있음 (과거는 읽기 전용), 답변 마크다운 렌더링, 대화 **복사·삭제** 지원
 
 ### 회고 & 탐색
 - **📊 감정 통계 대시보드** — 이번 달 요약, 감정 분포 막대그래프, 최근 14일 점수 추이(SVG 직접 구현), 감정 TOP 3
@@ -53,8 +55,9 @@
 |------|------|
 | **프론트엔드** | React 19, Vite 8, React Router 7 |
 | **백엔드 / 인프라** | Firebase — Authentication(Google), Cloud Firestore, Hosting |
-| **AI** | OpenRouter (LLM 감성 분석 · 챗봇 · 표지 이미지 생성) |
+| **AI** | OpenRouter (LLM 감성 분석 · 챗봇 · 음성 전사(omni) · 표지 이미지 생성) |
 | **외부 API** | Open-Meteo (날씨, 키 불필요) |
+| **브라우저 API** | getUserMedia / MediaRecorder (카메라·마이크), Web Audio (WAV 변환), Notification, Service Worker |
 | **UI / 라이브러리** | lucide-react(아이콘), html2pdf.js(PDF 내보내기), vite-plugin-pwa(PWA) |
 | **품질** | ESLint, 자체 테스트 러너(esbuild + node) |
 
@@ -79,6 +82,7 @@ npm install
 ```bash
 VITE_OPENROUTER_API_KEY=sk-or-...           # OpenRouter API 키
 VITE_OPENROUTER_MODEL=nvidia/nemotron-3-nano-30b-a3b:free   # 감성 분석/챗봇 모델
+VITE_OPENROUTER_AUDIO_MODEL=nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free  # (선택) 음성 입력 전사 모델
 VITE_OPENROUTER_IMAGE_MODEL=google/gemini-2.5-flash-image  # (선택) 표지 이미지 모델
 ```
 
@@ -113,10 +117,11 @@ src/
 ├── index.css / theme.css   # 전역 스타일 + 라이트/다크 토큰
 ├── components/
 │   ├── Login.jsx           # Google 로그인
-│   ├── DiaryEditor.jsx     # 일기 작성 + AI 분석 + 가이드 질문 + 표지
+│   ├── DiaryEditor.jsx     # 일기 작성 + AI 분석 + 음성 입력 + 미디어 첨부 + 가이드 질문
+│   ├── MediaCapture.jsx    # 카메라 사진/동영상 촬영 + 파일 선택 모달
 │   ├── DiaryList.jsx       # 목록 + 검색/필터 + 삭제 + 상세 모달
 │   ├── AiResult.jsx        # 감정 뱃지·점수·코멘트·표지 카드 (공용)
-│   ├── ChatBot.jsx         # AI 상담가 (일별 세션, 마크다운)
+│   ├── ChatBot.jsx         # AI 상담가 (일별 세션, 마크다운, 복사/삭제)
 │   ├── Stats.jsx           # 감정 통계 대시보드 (4카드 + SVG 차트)
 │   ├── Calendar.jsx        # 월간 캘린더 뷰
 │   ├── SettingsModal.jsx   # 도시·표지·알림·질문·내보내기 설정
@@ -137,6 +142,7 @@ src/
     ├── weather.js          # 날씨 코드 매핑 + 조회/캐시
     ├── exportDiary.js      # 마크다운 빌드 + 다운로드
     ├── notify.js           # 알림 판단 로직
+    ├── voice.js            # 녹음 → WAV 변환 → OpenRouter 음성 전사
     └── coverImage.js       # 표지 이미지 생성/리사이즈
 
 tests/
@@ -159,7 +165,7 @@ tests/
 
 | 컬렉션 | 주요 필드 |
 |--------|-----------|
-| `diaries` | `userId, content, emotion, score, comment, activity, coverImage, createdAt` |
+| `diaries` | `userId, content, emotion, score, comment, activity, coverImage, media{type,dataUrl}, createdAt` |
 | `chatMessages` | `userId, role, content, dateKey(YYYY-MM-DD), timestamp` |
 | `users` *(선택)* | `city` — 보안 규칙이 막혀 있으면 localStorage로 대체 |
 
@@ -168,6 +174,8 @@ tests/
 ## ⚠️ 알려진 제약
 
 - **날씨 도시 설정**은 `users` 컬렉션 보안 규칙이 막혀 있어 **기기별 localStorage**에 우선 저장됩니다 (Firestore는 best-effort 동기화). 기기 간 공유가 필요하면 `users/{uid}` 본인 읽기/쓰기 규칙을 추가하세요.
+- **사진·동영상 첨부**는 Firestore 문서 1MB 한도에 맞춰 사진은 리사이즈(최대 900px), 동영상은 5초·저비트레이트로 저장합니다. 더 큰/긴 미디어가 필요하면 Firebase Storage 연동이 필요합니다.
+- **음성 입력**은 `MediaRecorder` 지원 브라우저에서만 버튼이 보입니다 (앱 내장 브라우저·구형 iOS 제외). 정식 Chrome/Safari 권장.
 - **AI 표지 이미지**는 비용이 발생하여 **기본 OFF**입니다. 설정에서 켜고 OpenRouter 크레딧이 있어야 동작합니다.
 - **알림**은 브라우저 탭이 열려 있을 때만 정확히 동작하는 클라이언트 방식입니다. 앱을 닫아도 오는 푸시는 별도 서버(FCM 등)가 필요합니다. iOS는 PWA로 "홈 화면에 추가" 후에만 알림이 동작합니다.
 - 호스팅 도메인을 Firebase **Authentication → Authorized domains**에 추가해야 Google 로그인 팝업이 열립니다.

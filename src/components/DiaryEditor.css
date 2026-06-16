@@ -145,6 +145,91 @@
   box-shadow: 0 0 0 4px rgba(201, 168, 230, 0.18);
 }
 
+/* 🎤📎 입력 툴바 (음성/첨부) */
+.diary-tools {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.diary-tool {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border: 1.5px solid #e2d5ee;
+  border-radius: 999px;
+  background: transparent;
+  color: #6a5a78;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.diary-tool:hover:not(:disabled) {
+  background: rgba(161, 140, 209, 0.1);
+}
+
+.diary-tool:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.diary-tool.recording {
+  border-color: #e0405b;
+  color: #e0405b;
+  background: rgba(224, 64, 91, 0.08);
+  animation: diary-rec-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes diary-rec-pulse {
+  50% {
+    background: rgba(224, 64, 91, 0.18);
+  }
+}
+
+/* 첨부 미디어 미리보기 */
+.diary-media {
+  position: relative;
+  margin-top: 14px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #f3ecf8;
+}
+
+.diary-media img,
+.diary-media video {
+  width: 100%;
+  max-height: 280px;
+  object-fit: cover;
+  display: block;
+}
+
+.diary-media-remove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: inline-flex;
+  width: 30px;
+  height: 30px;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+}
+
+[data-theme="dark"] .diary-tool {
+  border-color: #3a342a;
+  color: #d8cdba;
+}
+
 /* ✨ AI 감성 분석 버튼 (보라색 그라데이션) */
 .diary-analyze-button {
   display: flex;

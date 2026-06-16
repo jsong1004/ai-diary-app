@@ -51,12 +51,22 @@ function Highlighted({ text, term }) {
   );
 }
 
-// 카드/모달 상단 표지 (이미지 없으면 감정 그라데이션)
+// 카드/모달 상단 표지
+// 우선순위: 첨부 미디어(사진/동영상) > AI 표지 이미지 > 감정 그라데이션
 function Cover({ diary, large }) {
   const emo = getEmotion(diary.emotion);
+  const media = diary.media;
   return (
     <div className={`diary-cover ${large ? "large" : ""}`}>
-      {diary.coverImage ? (
+      {media?.type === "video" ? (
+        large ? (
+          <video src={media.dataUrl} controls playsInline />
+        ) : (
+          <video src={media.dataUrl} muted playsInline preload="metadata" />
+        )
+      ) : media?.type === "image" ? (
+        <img src={media.dataUrl} alt="첨부 사진" />
+      ) : diary.coverImage ? (
         <img src={diary.coverImage} alt="일기 표지" />
       ) : (
         <div

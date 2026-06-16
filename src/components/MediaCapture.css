@@ -1,0 +1,180 @@
+/* src/components/MediaCapture.css */
+.media-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 240;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(74, 63, 85, 0.5);
+  backdrop-filter: blur(4px);
+  animation: diary-fade-in 0.2s ease-out;
+}
+
+.media-modal {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  background: #fffdfb;
+  border-radius: 24px;
+  padding: 26px;
+  box-shadow: 0 30px 70px rgba(74, 63, 85, 0.35);
+  animation: diary-modal-rise 0.25s ease-out;
+}
+
+.media-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 2;
+  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  cursor: pointer;
+}
+
+.media-title {
+  margin: 0 0 18px;
+  font-size: 18px;
+  font-weight: 800;
+  color: #5a4d66;
+  text-align: center;
+}
+
+.media-choose {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.media-option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 16px;
+  border: 1.5px solid #e2d5ee;
+  border-radius: 16px;
+  background: transparent;
+  color: #6a5a78;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.media-option:hover {
+  background: rgba(161, 140, 209, 0.1);
+}
+
+/* 카메라 라이브 */
+.media-camera,
+.media-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: center;
+}
+
+.media-live,
+.media-preview img,
+.media-preview video {
+  width: 100%;
+  max-height: 50vh;
+  border-radius: 16px;
+  background: #000;
+  object-fit: contain;
+}
+
+.media-rec-badge {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(224, 64, 91, 0.9);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.media-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 셔터 버튼 */
+.media-shutter {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 4px solid #c86dd7;
+  background: #fff;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+.media-shutter:hover {
+  transform: scale(1.05);
+}
+.media-shutter.rec {
+  border-color: #e0405b;
+  background: #e0405b;
+}
+.media-shutter.rec.on {
+  opacity: 0.6;
+}
+
+.media-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 11px 20px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+}
+.media-btn.ghost {
+  background: transparent;
+  border-color: #e2d5ee;
+  color: #6a5a78;
+}
+.media-btn.solid {
+  background: linear-gradient(135deg, #a18cd1 0%, #c86dd7 100%);
+  color: #fff;
+}
+
+.media-error {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #e0405b;
+  text-align: center;
+}
+
+/* 다크 모드 */
+[data-theme="dark"] .media-modal {
+  background: #221f1a;
+}
+[data-theme="dark"] .media-title {
+  color: #e8dcc8;
+}
+[data-theme="dark"] .media-option {
+  border-color: #3a342a;
+  color: #d8cdba;
+}
+[data-theme="dark"] .media-btn.ghost {
+  border-color: #3a342a;
+  color: #d8cdba;
+}
