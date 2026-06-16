@@ -1,0 +1,210 @@
+/* src/components/Stats.css */
+.stats-page {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+  box-sizing: border-box;
+}
+
+.stats-title {
+  margin: 0 0 4px;
+  font-size: 26px;
+  font-weight: 800;
+  color: #6a5a78;
+}
+
+.stats-subtitle {
+  margin: 0 0 28px;
+  font-size: 14px;
+  color: #a18cd1;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+@media (min-width: 720px) {
+  .stats-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.stats-card {
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 22px;
+  padding: 22px 24px;
+  box-shadow: 0 10px 30px rgba(180, 150, 200, 0.18);
+}
+
+.stats-card-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #8e5fc0;
+  margin-bottom: 18px;
+}
+
+/* 카드 1 요약 */
+.stats-summary {
+  display: flex;
+  justify-content: space-around;
+  text-align: center;
+}
+
+.stats-summary-value {
+  font-size: 30px;
+  font-weight: 800;
+  color: #5a4d66;
+}
+
+.stats-summary-label {
+  margin-top: 4px;
+  font-size: 12.5px;
+  color: #8a7e92;
+  font-weight: 600;
+}
+
+/* 카드 2 막대 */
+.stats-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.stats-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.stats-bar-label {
+  flex-shrink: 0;
+  width: 64px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #6a5a78;
+}
+
+.stats-bar-track {
+  flex: 1;
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(150, 110, 215, 0.1);
+  overflow: hidden;
+}
+
+.stats-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  min-width: 2px;
+  transition: width 0.4s ease;
+}
+
+.stats-bar-count {
+  flex-shrink: 0;
+  width: 22px;
+  text-align: right;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #8a7e92;
+}
+
+/* 카드 3 추이 */
+.stats-trend-svg {
+  width: 100%;
+  height: 120px;
+}
+
+.stats-trend-base {
+  stroke: rgba(150, 110, 215, 0.25);
+  stroke-width: 1;
+  stroke-dasharray: 4 4;
+}
+
+.stats-trend-line {
+  stroke: #c86dd7;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.stats-trend-dot {
+  fill: #a18cd1;
+}
+
+.stats-trend-axis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 11.5px;
+  color: #a89cb0;
+}
+
+/* 카드 4 TOP3 */
+.stats-top {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.stats-top-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.stats-top-medal {
+  font-size: 22px;
+}
+
+.stats-top-emoji {
+  font-size: 26px;
+}
+
+.stats-top-name {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 700;
+  color: #5a4d66;
+}
+
+.stats-top-count {
+  font-size: 14px;
+  font-weight: 700;
+  color: #a18cd1;
+}
+
+/* 빈/로딩 상태 */
+.stats-empty {
+  text-align: center;
+  padding: 72px 24px;
+  color: #8a7e92;
+}
+
+.stats-empty-emoji {
+  font-size: 52px;
+  margin-bottom: 16px;
+}
+
+.stats-empty-mini {
+  margin: 0;
+  font-size: 13px;
+  color: #a89cb0;
+}
+
+/* 다크 모드 */
+[data-theme="dark"] .stats-title {
+  color: #e8dcc8;
+}
+[data-theme="dark"] .stats-card {
+  background: #2a2620;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+[data-theme="dark"] .stats-summary-value,
+[data-theme="dark"] .stats-top-name {
+  color: #e8dcc8;
+}
+[data-theme="dark"] .stats-bar-label {
+  color: #d8cdba;
+}

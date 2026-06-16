@@ -1,0 +1,538 @@
+/* src/components/DiaryList.css */
+/* 저장된 일기 목록 - 감성적인 파스텔톤 카드 그리드 */
+
+.diary-list-page {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+  box-sizing: border-box;
+}
+
+.diary-list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.diary-list-title {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 800;
+  color: #6a5a78;
+}
+
+/* ✍️ 새 일기 쓰기 버튼 (보라색 그라데이션) */
+.diary-write-button {
+  padding: 12px 22px;
+  border: none;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #a18cd1 0%, #c86dd7 100%);
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(150, 110, 215, 0.4);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.diary-write-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(150, 110, 215, 0.5);
+}
+
+.diary-write-button:active {
+  transform: translateY(0);
+}
+
+/* 반응형 그리드: 모바일 1열, PC 2열 */
+.diary-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+@media (min-width: 720px) {
+  .diary-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* 일기 카드 */
+.diary-card {
+  position: relative;
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: none;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 22px;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(180, 150, 200, 0.18);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  font-family: inherit;
+}
+
+.diary-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 38px rgba(180, 150, 200, 0.3);
+}
+
+.diary-card:focus-visible {
+  outline: 3px solid rgba(161, 140, 209, 0.5);
+  outline-offset: 2px;
+}
+
+.diary-card-body {
+  padding: 18px 22px 22px;
+}
+
+.diary-card-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.diary-card-emotion {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* 표지 (이미지 또는 감정 그라데이션) */
+.diary-cover {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #f3ecf8;
+}
+
+.diary-cover.large {
+  border-radius: 16px;
+  margin-bottom: 16px;
+  aspect-ratio: 4 / 3;
+}
+
+.diary-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.diary-cover-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+}
+
+/* 삭제 버튼 (카드 우측 상단) */
+.diary-delete-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  color: #b6abc0;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  transition: color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+
+.diary-delete-btn:hover {
+  color: #e0405b;
+  background: #fff;
+  transform: scale(1.08);
+}
+
+/* 검색어 형광펜 */
+.diary-card-content mark,
+.diary-card-ai-text mark {
+  background: #fff3a8;
+  color: inherit;
+  border-radius: 3px;
+  padding: 0 1px;
+}
+
+.diary-card-date {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 700;
+  color: #b18ad0;
+  margin-bottom: 12px;
+}
+
+.diary-card-content {
+  margin: 0 0 16px;
+  font-size: 15px;
+  line-height: 1.7;
+  color: #4a3f55;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.diary-card-ai {
+  border-top: 1px dashed #eadcf3;
+  padding-top: 14px;
+}
+
+.diary-card-ai-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: #9c6ec0;
+  margin-bottom: 6px;
+}
+
+.diary-card-ai-text {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: #7a6e86;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* 빈 상태 / 로딩 상태 */
+.diary-list-empty {
+  text-align: center;
+  padding: 72px 24px;
+  color: #8a7e92;
+}
+
+.diary-list-empty-emoji {
+  font-size: 52px;
+  margin-bottom: 16px;
+}
+
+.diary-list-empty p {
+  margin: 0 0 20px;
+  font-size: 16px;
+}
+
+.diary-list-spinner {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  margin-bottom: 14px;
+  border: 4px solid rgba(161, 140, 209, 0.25);
+  border-top-color: #a18cd1;
+  border-radius: 50%;
+  animation: diary-list-spin 0.7s linear infinite;
+}
+
+@keyframes diary-list-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 상세 보기 모달 */
+.diary-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(74, 63, 85, 0.45);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 100;
+  animation: diary-fade-in 0.2s ease-out;
+}
+
+@keyframes diary-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.diary-modal {
+  position: relative;
+  width: 100%;
+  max-width: 540px;
+  max-height: 85vh;
+  overflow-y: auto;
+  background: #fffdfb;
+  border-radius: 26px;
+  padding: 36px 30px 30px;
+  box-shadow: 0 30px 70px rgba(74, 63, 85, 0.35);
+  animation: diary-modal-rise 0.25s ease-out;
+}
+
+@keyframes diary-modal-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.diary-modal-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  background: #f3ecf8;
+  color: #8a7e92;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.diary-modal-close:hover {
+  background: #e8dcf2;
+}
+
+.diary-modal-date {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 700;
+  color: #b18ad0;
+  margin-bottom: 8px;
+}
+
+.diary-modal-heading {
+  margin: 0 0 14px;
+  font-size: 20px;
+  font-weight: 800;
+  color: #5a4d66;
+}
+
+.diary-modal-content {
+  margin: 0;
+  font-size: 15.5px;
+  line-height: 1.85;
+  color: #4a3f55;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ===== 검색창 ===== */
+.diary-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.diary-search-icon {
+  position: absolute;
+  left: 16px;
+  color: #b18ad0;
+  pointer-events: none;
+}
+
+.diary-search-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 44px;
+  border: 2px solid #f0e6f6;
+  border-radius: 999px;
+  font-size: 15px;
+  font-family: inherit;
+  color: #4a3f55;
+  background: rgba(255, 255, 255, 0.9);
+  transition: border-color 0.15s ease;
+}
+
+.diary-search-input:focus {
+  outline: none;
+  border-color: #c9a8e6;
+}
+
+.diary-search-clear {
+  position: absolute;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 50%;
+  background: #f3ecf8;
+  color: #8a7e92;
+  cursor: pointer;
+}
+
+/* ===== 감정 필터 칩 ===== */
+.diary-chips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  margin-bottom: 6px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.diary-chip {
+  flex-shrink: 0;
+  padding: 7px 14px;
+  border: 1.5px solid #e2d5ee;
+  border-radius: 999px;
+  background: transparent;
+  color: #8a7e92;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.diary-chip.active {
+  background: linear-gradient(135deg, #a18cd1 0%, #c86dd7 100%);
+  border-color: #a18cd1;
+  color: #fff;
+}
+
+.diary-count {
+  margin: 0 0 18px;
+  font-size: 13px;
+  color: #a18cd1;
+  font-weight: 600;
+}
+
+/* ===== 상세 모달 삭제 버튼 ===== */
+.diary-modal-delete {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 20px;
+  padding: 10px 18px;
+  border: 1.5px solid #f3c2cb;
+  border-radius: 14px;
+  background: transparent;
+  color: #e0405b;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.diary-modal-delete:hover {
+  background: #fff0f2;
+}
+
+/* ===== 삭제 확인 모달 ===== */
+.diary-confirm {
+  width: 100%;
+  max-width: 340px;
+  background: #fffdfb;
+  border-radius: 24px;
+  padding: 30px 26px 26px;
+  text-align: center;
+  box-shadow: 0 30px 70px rgba(74, 63, 85, 0.35);
+  animation: diary-modal-rise 0.25s ease-out;
+}
+
+.diary-confirm-icon {
+  font-size: 40px;
+  margin-bottom: 10px;
+}
+
+.diary-confirm-title {
+  margin: 0 0 8px;
+  font-size: 18px;
+  font-weight: 800;
+  color: #5a4d66;
+}
+
+.diary-confirm-desc {
+  margin: 0 0 22px;
+  font-size: 14px;
+  color: #8a7e92;
+}
+
+.diary-confirm-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.diary-confirm-cancel,
+.diary-confirm-delete {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.diary-confirm-cancel {
+  background: #f3ecf8;
+  color: #6a5a78;
+}
+
+.diary-confirm-delete {
+  background: #e0405b;
+  color: #fff;
+}
+
+.diary-confirm-cancel:disabled,
+.diary-confirm-delete:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* 다크 모드 */
+[data-theme="dark"] .diary-search-input {
+  background: #2a2620;
+  border-color: #3a342a;
+  color: #e8dcc8;
+}
+[data-theme="dark"] .diary-chip {
+  border-color: #3a342a;
+  color: #b8ad9a;
+}
+[data-theme="dark"] .diary-confirm {
+  background: #221f1a;
+}
+[data-theme="dark"] .diary-confirm-title {
+  color: #e8dcc8;
+}
+[data-theme="dark"] .diary-confirm-cancel {
+  background: #3a342a;
+  color: #d8cdba;
+}
+[data-theme="dark"] .diary-delete-btn {
+  background: rgba(42, 38, 32, 0.85);
+}
+[data-theme="dark"] .diary-card-content mark,
+[data-theme="dark"] .diary-card-ai-text mark {
+  background: #5c5320;
+  color: #ffe9a8;
+}

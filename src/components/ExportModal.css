@@ -1,0 +1,161 @@
+/* src/components/ExportModal.css */
+.export-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 220;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(74, 63, 85, 0.45);
+  backdrop-filter: blur(4px);
+  animation: diary-fade-in 0.2s ease-out;
+}
+
+.export-modal {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  background: #fffdfb;
+  border-radius: 24px;
+  padding: 30px 26px 26px;
+  box-shadow: 0 30px 70px rgba(74, 63, 85, 0.35);
+  animation: diary-modal-rise 0.25s ease-out;
+}
+
+.export-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: inline-flex;
+  width: 32px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: #f3ecf8;
+  color: #8a7e92;
+  cursor: pointer;
+}
+
+.export-title {
+  margin: 0 0 22px;
+  font-size: 20px;
+  font-weight: 800;
+  color: #5a4d66;
+}
+
+.export-section {
+  margin-bottom: 20px;
+}
+
+.export-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #6a5a78;
+  margin-bottom: 10px;
+}
+
+.export-radios {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.export-radio {
+  padding: 8px 14px;
+  border: 1.5px solid #e2d5ee;
+  border-radius: 999px;
+  background: transparent;
+  color: #8a7e92;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.export-radio.active {
+  background: linear-gradient(135deg, #a18cd1 0%, #c86dd7 100%);
+  border-color: #a18cd1;
+  color: #fff;
+}
+
+.export-tabs {
+  display: flex;
+  gap: 10px;
+}
+
+.export-tab {
+  flex: 1;
+  padding: 12px;
+  border: 1.5px solid #e2d5ee;
+  border-radius: 14px;
+  background: transparent;
+  color: #6a5a78;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.export-tab.active {
+  background: rgba(161, 140, 209, 0.14);
+  border-color: #a18cd1;
+  color: #8e5fc0;
+}
+
+.export-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #6a5a78;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.export-check input {
+  width: 17px;
+  height: 17px;
+  accent-color: #a18cd1;
+}
+
+.export-go {
+  width: 100%;
+  padding: 13px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #a18cd1 0%, #c86dd7 100%);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.export-go:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* 다크 모드 */
+[data-theme="dark"] .export-modal {
+  background: #221f1a;
+}
+[data-theme="dark"] .export-title {
+  color: #e8dcc8;
+}
+[data-theme="dark"] .export-label,
+[data-theme="dark"] .export-check {
+  color: #d8cdba;
+}
+[data-theme="dark"] .export-radio,
+[data-theme="dark"] .export-tab {
+  border-color: #3a342a;
+  color: #b8ad9a;
+}
+[data-theme="dark"] .export-close {
+  background: #3a342a;
+  color: #c8bda8;
+}

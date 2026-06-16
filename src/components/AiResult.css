@@ -1,0 +1,320 @@
+/* src/components/AiResult.css */
+/* AI 감성 분석 결과 카드의 공용 스타일입니다. */
+/* DiaryEditor(작성)와 DiaryList(상세 모달)에서 함께 사용합니다. */
+
+/* ✨ AI 감성 분석 결과 카드 (둥근 모서리 + 연한 보라색 배경) */
+.diary-ai-card {
+  margin-top: 22px;
+  padding: 22px 24px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #f6efff 0%, #efe6fb 100%);
+  border: 1px solid #e7d8f7;
+  box-shadow: 0 10px 28px rgba(150, 110, 215, 0.14);
+  animation: ai-card-rise 0.4s ease-out;
+  text-align: left;
+}
+
+@keyframes ai-card-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 카드 상단 타이틀 + 구분선 */
+.diary-ai-header {
+  font-size: 16px;
+  font-weight: 800;
+  color: #8e5fc0;
+  letter-spacing: -0.2px;
+}
+
+.diary-ai-divider {
+  height: 1px;
+  margin: 14px 0 4px;
+  background: linear-gradient(
+    90deg,
+    rgba(160, 120, 215, 0) 0%,
+    rgba(160, 120, 215, 0.45) 50%,
+    rgba(160, 120, 215, 0) 100%
+  );
+}
+
+/* 두 구역(감성 분석 / 짧은 코멘트) 레이아웃 */
+.diary-ai-body {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.diary-ai-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.diary-ai-section-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #9c6ec0;
+}
+
+/* 마크다운이 렌더링되는 본문 영역 */
+.diary-ai-rich {
+  font-size: 15px;
+  line-height: 1.8;
+  color: #5a4d66;
+  word-break: break-word;
+}
+
+.diary-ai-rich h1,
+.diary-ai-rich h2,
+.diary-ai-rich h3 {
+  margin: 6px 0;
+  color: #7a55a8;
+  font-weight: 700;
+}
+
+.diary-ai-rich h1 { font-size: 17px; }
+.diary-ai-rich h2 { font-size: 16px; }
+.diary-ai-rich h3 { font-size: 15px; }
+
+.diary-ai-rich p {
+  margin: 0 0 8px;
+}
+
+.diary-ai-rich p:last-child {
+  margin-bottom: 0;
+}
+
+.diary-ai-rich strong {
+  color: #8e5fc0;
+  font-weight: 700;
+}
+
+.diary-ai-rich em {
+  font-style: italic;
+  color: #6a5a78;
+}
+
+.diary-ai-rich code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: rgba(150, 110, 215, 0.12);
+  color: #7a55a8;
+}
+
+.diary-ai-rich ul {
+  margin: 4px 0;
+  padding-left: 20px;
+}
+
+.diary-ai-rich li {
+  margin: 2px 0;
+}
+
+.diary-ai-rich blockquote {
+  margin: 6px 0;
+  padding: 4px 14px;
+  border-left: 3px solid #c9a8e6;
+  color: #6a5a78;
+}
+
+/* 💬 짧은 코멘트 (인용구 스타일) */
+.diary-ai-quote {
+  margin: 0;
+  padding: 14px 18px;
+  border-left: 4px solid #c86dd7;
+  border-radius: 0 14px 14px 0;
+  background: rgba(255, 255, 255, 0.6);
+  font-size: 15px;
+  line-height: 1.8;
+  color: #5a4d66;
+  font-style: italic;
+}
+
+.diary-ai-quote p {
+  margin: 0 0 6px;
+}
+
+.diary-ai-quote p:last-child {
+  margin-bottom: 0;
+}
+
+.diary-ai-quote blockquote {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+/* 감정 뱃지 + 점수 */
+.ai-emotion-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ai-emotion-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.ai-emotion-emoji {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.ai-score {
+  display: inline-flex;
+  gap: 5px;
+}
+
+.ai-score-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(150, 110, 215, 0.2);
+}
+
+.ai-score-dot.on {
+  background: linear-gradient(135deg, #a18cd1 0%, #c86dd7 100%);
+}
+
+/* 표지 이미지 */
+.ai-cover {
+  position: relative;
+  margin-bottom: 16px;
+  border-radius: 16px;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  background: rgba(150, 110, 215, 0.1);
+}
+
+.ai-cover.large {
+  aspect-ratio: 4 / 3;
+}
+
+.ai-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.ai-cover-regen {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+}
+
+.ai-cover-regen:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.ai-cover-regen .spin {
+  animation: diary-shimmer-spin 0.9s linear infinite;
+}
+
+@keyframes diary-shimmer-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 🦴 로딩 스켈레톤 (shimmer) */
+.diary-skeleton {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  background: rgba(160, 120, 215, 0.14);
+}
+
+.diary-skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.65) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: diary-shimmer 1.3s ease-in-out infinite;
+}
+
+@keyframes diary-shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.diary-skeleton-title {
+  width: 38%;
+  height: 14px;
+  margin-bottom: 12px;
+}
+
+.diary-skeleton-line {
+  width: 100%;
+  height: 12px;
+  margin-bottom: 9px;
+}
+
+.diary-skeleton-line.short {
+  width: 55%;
+}
+
+.diary-skeleton-line.medium {
+  width: 75%;
+}
+
+/* 동작 최소화를 선호하는 사용자는 shimmer 애니메이션을 끕니다 */
+@media (prefers-reduced-motion: reduce) {
+  .diary-skeleton::after {
+    animation: none;
+  }
+}
+
+/* 📱 모바일 반응형 */
+@media (max-width: 600px) {
+  .diary-ai-card {
+    padding: 18px 16px;
+    border-radius: 20px;
+  }
+
+  .diary-ai-header {
+    font-size: 15px;
+  }
+
+  .diary-ai-rich,
+  .diary-ai-quote {
+    font-size: 14px;
+  }
+}

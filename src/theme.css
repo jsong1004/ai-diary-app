@@ -1,0 +1,203 @@
+/* src/theme.css */
+/* 라이트/다크 테마용 CSS 변수 + 다크 모드 오버라이드 모음입니다. */
+/* 새 컴포넌트(날씨/통계/설정/토스트)는 아래 변수를 사용하고, */
+/* 기존 컴포넌트는 [data-theme="dark"] 셀렉터로 색을 덮어씁니다. */
+
+:root {
+  --surface: #ffffff;
+  --surface-2: rgba(255, 255, 255, 0.9);
+  --surface-glass: rgba(255, 255, 255, 0.55);
+  --text-strong: #4a3f55;
+  --text-soft: #7a6e86;
+  --border-soft: #efe6f3;
+  --accent: #a18cd1;
+  --accent-2: #c86dd7;
+  --pink: #fd9bb0;
+  --app-grad: linear-gradient(135deg, #fff5eb 0%, #ffe9e4 100%);
+}
+
+[data-theme="dark"] {
+  --surface: #2a2620;
+  --surface-2: #2a2620;
+  --surface-glass: rgba(42, 38, 32, 0.55);
+  --text-strong: #e8dcc8;
+  --text-soft: #b8ad9a;
+  --border-soft: #3a342a;
+  --accent: #c9a8e6;
+  --accent-2: #d98fe0;
+  --pink: #f0a8b8;
+  --app-grad: linear-gradient(135deg, #1a1814 0%, #221d28 100%);
+}
+
+/* ====================== 전역 접근성 ====================== */
+
+/* 키보드 포커스 링 (마우스 클릭 시엔 안 보이고 키보드 탐색 시에만 표시) */
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* 동작 최소화 선호 시 애니메이션/전환 비활성화 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* 부드러운 테마 전환 */
+body,
+.app-main,
+.app-header,
+.diary-card,
+.diary-editor,
+.diary-modal,
+.diary-textarea,
+.chatbot,
+.chat-bubble-ai,
+.diary-ai-card,
+.login-card {
+  transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* ====================== 다크 모드 오버라이드 ====================== */
+
+[data-theme="dark"] body {
+  background: #16140f;
+}
+
+/* 로그인 화면 */
+[data-theme="dark"] .login-page {
+  background: linear-gradient(135deg, #241c1a 0%, #2a1d24 50%, #1e1722 100%);
+}
+[data-theme="dark"] .login-card {
+  background: rgba(42, 38, 32, 0.95);
+}
+[data-theme="dark"] .login-title {
+  color: #e8dcc8;
+}
+[data-theme="dark"] .login-subtitle {
+  color: #b8ad9a;
+}
+[data-theme="dark"] .login-footer {
+  color: #8a7e6a;
+}
+
+/* 앱 셸 / 헤더 */
+[data-theme="dark"] .app-main {
+  background: var(--app-grad);
+}
+[data-theme="dark"] .app-header {
+  background: rgba(26, 24, 20, 0.7);
+}
+[data-theme="dark"] .app-brand,
+[data-theme="dark"] .app-greeting {
+  color: #e8dcc8;
+}
+[data-theme="dark"] .app-nav-link {
+  color: #b8ad9a;
+}
+[data-theme="dark"] .app-nav-link:hover {
+  background: rgba(201, 168, 230, 0.18);
+}
+
+/* 일기 목록 / 카드 */
+[data-theme="dark"] .diary-list-title {
+  color: #e8dcc8;
+}
+[data-theme="dark"] .diary-card {
+  background: #2a2620;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+[data-theme="dark"] .diary-card-content {
+  color: #e0d6c4;
+}
+[data-theme="dark"] .diary-card-date {
+  color: #c9a8e6;
+}
+[data-theme="dark"] .diary-card-ai {
+  border-top-color: #3a342a;
+}
+[data-theme="dark"] .diary-card-ai-text {
+  color: #b8ad9a;
+}
+[data-theme="dark"] .diary-list-empty {
+  color: #b8ad9a;
+}
+
+/* 모달 */
+[data-theme="dark"] .diary-modal {
+  background: #221f1a;
+}
+[data-theme="dark"] .diary-modal-heading {
+  color: #e8dcc8;
+}
+[data-theme="dark"] .diary-modal-content {
+  color: #d8cdba;
+}
+[data-theme="dark"] .diary-modal-close {
+  background: #3a342a;
+  color: #c8bda8;
+}
+
+/* 에디터 */
+[data-theme="dark"] .diary-editor {
+  background: #2a2620;
+}
+[data-theme="dark"] .diary-label {
+  color: #d8cdba;
+}
+[data-theme="dark"] .diary-textarea {
+  background: #1f1c17;
+  border-color: #3a342a;
+  color: #e8dcc8;
+}
+[data-theme="dark"] .diary-textarea::placeholder {
+  color: #7a6e5a;
+}
+
+/* AI 결과 카드 */
+[data-theme="dark"] .diary-ai-card {
+  background: linear-gradient(135deg, #2e2733 0%, #271f2e 100%);
+  border-color: #423a4a;
+}
+[data-theme="dark"] .diary-ai-rich,
+[data-theme="dark"] .diary-ai-quote {
+  color: #d8cdba;
+}
+[data-theme="dark"] .diary-ai-quote {
+  background: rgba(0, 0, 0, 0.2);
+}
+[data-theme="dark"] .diary-ai-rich strong {
+  color: #d98fe0;
+}
+
+/* 챗봇 */
+[data-theme="dark"] .chatbot {
+  background: rgba(26, 24, 20, 0.85);
+}
+[data-theme="dark"] .chatbot-messages {
+  background: linear-gradient(180deg, #211c26 0%, #1c1820 100%);
+}
+[data-theme="dark"] .chat-bubble-ai {
+  background: #2a2620;
+  color: #e0d6c4;
+  border-color: #3a342a;
+}
+[data-theme="dark"] .chatbot-welcome {
+  color: #b8ad9a;
+}
+[data-theme="dark"] .chatbot-input-bar {
+  background: rgba(26, 24, 20, 0.95);
+  border-top-color: #3a342a;
+}
+[data-theme="dark"] .chatbot-input {
+  background: #1f1c17;
+  border-color: #3a342a;
+  color: #e8dcc8;
+}
