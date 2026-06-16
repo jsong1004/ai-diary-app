@@ -39,8 +39,16 @@ const app = initializeApp(cfg);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-const EMAIL = "claude.tester@example.com";
-const PASS = "REDACTED";
+// 테스트 계정 자격증명은 환경변수로 주입합니다 (소스에 비밀번호를 두지 않음).
+// 예: TEST_EMAIL=tester@example.com TEST_PASSWORD=... node ...
+const EMAIL = process.env.TEST_EMAIL || "tester@example.com";
+const PASS = process.env.TEST_PASSWORD;
+if (!PASS) {
+  console.error(
+    "환경변수 TEST_PASSWORD가 필요합니다. (예: TEST_EMAIL=.. TEST_PASSWORD=.. 로 실행)"
+  );
+  process.exit(1);
+}
 
 let pass = 0,
   fail = 0;
