@@ -16,6 +16,7 @@ import {
 import { Copy, Trash2 } from "lucide-react";
 import { db } from "../firebase";
 import { renderMarkdown } from "../utils/aiMarkdown";
+import { diariesOnDate, withDiaryContext } from "../utils/chatContext";
 import Toast from "./Toast";
 import "./ChatBot.css";
 
@@ -55,7 +56,7 @@ function msgTime(m) {
 }
 
 // OpenRouter 호출. 무료 모델은 가끔 429가 나므로 짧게 재시도합니다.
-async function requestChat(conversation, retries = 2) {
+async function requestChat(conversation, systemPrompt, retries = 2) {
   const response = await fetch(OPENROUTER_API_URL, {
     method: "POST",
     headers: {
@@ -65,7 +66,7 @@ async function requestChat(conversation, retries = 2) {
     body: JSON.stringify({
       model: OPENROUTER_MODEL,
       messages: [
-        { role: "system", content: SYSTEM_PROMPT },
+        { role: "system", content: systemPrompt },
         ...conversation.map(({ role, content }) => ({ role, content })),
       ],
     }),
@@ -73,7 +74,7 @@ async function requestChat(conversation, retries = 2) {
 
   if (response.status === 429 && retries > 0) {
     await wait(1500);
-    return requestChat(conversation, retries - 1);
+    return requestChat(conversation, systemPrompt, retries - 1);
   }
   return response;
 }
@@ -82,6 +83,7 @@ function ChatBot({ user }) {
   const todayKey = toDateKey(new Date());
 
   const [allMessages, setAllMessages] = useState([]); // 전체 메시지 (dateKey 포함)
+  const [diaries, setDiaries] = useState([]); // 오늘 일기 맥락용 (상담가가 참고)
   const [selectedDate, setSelectedDate] = useState(todayKey);
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
@@ -119,6 +121,30 @@ function ChatBot({ user }) {
     };
     loadHistory();
   }, [user.uid]);
+
+  // 오늘 작성한 일기를 불러와 상담가가 맥락으로 참고하게 합니다.
+  useEffect(() => {
+    const loadTodayDiaries = async () => {
+      try {
+        const snapshot = await getDocs(
+          query(collection(db, "diaries"), where("userId", "==", user.uid))
+        );
+        setDiaries(snapshot.docs.map((d) => d.data()));
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    loadTodayDiaries();
+  }, [user.uid]);
+
+  const todayDiaries = useMemo(
+    () => diariesOnDate(diaries, todayKey),
+    [diaries, todayKey]
+  );
+  const systemPrompt = useMemo(
+    () => withDiaryContext(SYSTEM_PROMPT, todayDiaries),
+    [todayDiaries]
+  );
 
   // 대화가 있는 날짜 목록 (최신순) + 항상 오늘 포함
   const dates = useMemo(() => {
@@ -179,7 +205,7 @@ function ChatBot({ user }) {
 
     setSending(true);
     try {
-      const response = await requestChat(todayConvo);
+      const response = await requestChat(todayConvo, systemPrompt);
       if (response.status === 429) {
         setError("지금 AI가 잠시 붐비고 있어요. 잠시 후 다시 보내 주세요 🙏");
         return;

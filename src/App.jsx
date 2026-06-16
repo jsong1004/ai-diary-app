@@ -3,6 +3,7 @@ import { Routes, Route, Navigate, Link, NavLink, useNavigate } from 'react-route
 import { onAuthStateChanged, signOut } from 'firebase/auth'
 import { auth } from './firebase'
 import Login from './components/Login'
+import LockScreen from './components/LockScreen'
 import DiaryEditor from './components/DiaryEditor'
 import DiaryList from './components/DiaryList'
 import ChatBot from './components/ChatBot'
@@ -17,10 +18,11 @@ import { useTheme } from './hooks/useTheme'
 import { useUserSettings } from './hooks/useUserSettings'
 import { useWeather } from './hooks/useWeather'
 import { useDailyReminder } from './hooks/useDailyReminder'
+import { useAppLock } from './hooks/useAppLock'
 import './App.css'
 
 // 로그인 후 모든 페이지가 공유하는 레이아웃 (날씨 배경 + 헤더 + 본문)
-function Layout({ user, children }) {
+function Layout({ user, appLock, children }) {
   const { theme } = useTheme()
   const { city, setCity, loading: cityLoading } = useUserSettings(user)
   const { weather, loading: weatherLoading } = useWeather(city)
@@ -54,6 +56,17 @@ function Layout({ user, children }) {
             onSettings={() => setSettingsOpen(true)}
           />
           <ThemeToggle />
+          {appLock.hasPin && (
+            <button
+              type="button"
+              className="lock-now-button"
+              onClick={appLock.lockNow}
+              aria-label="지금 잠그기"
+              title="지금 잠그기"
+            >
+              🔒
+            </button>
+          )}
           <span className="app-greeting">
             {user.displayName ? `${user.displayName}님 👋` : '환영해요 👋'}
           </span>
@@ -71,6 +84,7 @@ function Layout({ user, children }) {
           onSaveCity={setCity}
           onToast={setToast}
           onClose={() => setSettingsOpen(false)}
+          appLock={appLock}
         />
       )}
 
@@ -105,6 +119,7 @@ function WritePage({ user }) {
 function App() {
   const [user, setUser] = useState(null)   // 로그인한 사용자 정보
   const [loading, setLoading] = useState(true)  // 인증 상태 확인 중 여부
+  const appLock = useAppLock()
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -126,14 +141,18 @@ function App() {
     return <Login />
   }
 
+  if (appLock.locked) {
+    return <LockScreen onUnlock={appLock.unlock} />
+  }
+
   return (
     <Routes>
-      <Route path="/" element={<Layout user={user}><DiaryList user={user} /></Layout>} />
-      <Route path="/diaries" element={<Layout user={user}><DiaryList user={user} /></Layout>} />
-      <Route path="/write" element={<Layout user={user}><WritePage user={user} /></Layout>} />
-      <Route path="/chat" element={<Layout user={user}><ChatBot user={user} /></Layout>} />
-      <Route path="/calendar" element={<Layout user={user}><Calendar user={user} /></Layout>} />
-      <Route path="/stats" element={<Layout user={user}><Stats user={user} /></Layout>} />
+      <Route path="/" element={<Layout user={user} appLock={appLock}><DiaryList user={user} /></Layout>} />
+      <Route path="/diaries" element={<Layout user={user} appLock={appLock}><DiaryList user={user} /></Layout>} />
+      <Route path="/write" element={<Layout user={user} appLock={appLock}><WritePage user={user} /></Layout>} />
+      <Route path="/chat" element={<Layout user={user} appLock={appLock}><ChatBot user={user} /></Layout>} />
+      <Route path="/calendar" element={<Layout user={user} appLock={appLock}><Calendar user={user} /></Layout>} />
+      <Route path="/stats" element={<Layout user={user} appLock={appLock}><Stats user={user} /></Layout>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )

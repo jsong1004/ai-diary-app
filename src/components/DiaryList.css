@@ -24,6 +24,26 @@
   color: #6a5a78;
 }
 
+.diary-list-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.diary-streak-badge {
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ffd3a5 0%, #fd9bb0 100%);
+  color: #6a3f4a;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+[data-theme="dark"] .diary-streak-badge {
+  color: #2a1f24;
+}
+
 /* ✍️ 새 일기 쓰기 버튼 (보라색 그라데이션) */
 .diary-write-button {
   padding: 12px 22px;

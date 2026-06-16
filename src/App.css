@@ -128,6 +128,24 @@
   opacity: 0.85;
 }
 
+.lock-now-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(161, 140, 209, 0.14);
+  font-size: 15px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.lock-now-button:hover {
+  background: rgba(161, 140, 209, 0.24);
+}
+
 .app-content {
   text-align: center;
   padding: 64px 24px;

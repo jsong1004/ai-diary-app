@@ -266,6 +266,50 @@
 
 /* AI 감성 분석 결과 카드 스타일은 AiResult.css에 있습니다. */
 
+/* 🎭 AI가 고른 감정을 직접 바꿀 수 있는 칩 */
+.emotion-override {
+  margin-top: 14px;
+}
+
+.emotion-override-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #8a7e92;
+}
+
+.emotion-override-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.emotion-override-chip {
+  padding: 6px 12px;
+  border: 1.5px solid #e2d5ee;
+  border-radius: 999px;
+  background: transparent;
+  color: #8a7e92;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.emotion-override-chip:hover {
+  background: rgba(161, 140, 209, 0.1);
+}
+
+[data-theme="dark"] .emotion-override-label {
+  color: #b8ad9a;
+}
+[data-theme="dark"] .emotion-override-chip {
+  border-color: #3a342a;
+  color: #b8ad9a;
+}
+
 /* 💾 일기 저장 버튼 (부드러운 핑크 파스텔) */
 .diary-save-button {
   display: flex;
