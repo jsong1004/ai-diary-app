@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: production
-      url: https://vibecoding-vote.web.app
+      url: https://ai-diary-js.web.app
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -52,5 +52,5 @@ jobs:
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          projectId: vibecoding-vote
+          projectId: ai-diary-js-499617
           channelId: live
