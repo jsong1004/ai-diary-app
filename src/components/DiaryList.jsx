@@ -18,6 +18,7 @@ import Toast from "./Toast";
 import { stripMarkdown } from "../utils/aiMarkdown";
 import { filterDiaries, highlightParts } from "../utils/search";
 import { getEmotion, emotionGradient, EMOTIONS } from "../utils/emotions";
+import { calculateStreak } from "../utils/streak";
 import { useDebounce } from "../hooks/useDebounce";
 import "./DiaryList.css";
 
@@ -128,6 +129,8 @@ function DiaryList({ user }) {
     [diaries, debouncedTerm, emotionFilter]
   );
 
+  const streak = useMemo(() => calculateStreak(diaries), [diaries]);
+
   // 일기 삭제 (본인 것만)
   const handleDelete = async (diary) => {
     if (!diary || diary.userId !== user.uid) return;
@@ -148,7 +151,12 @@ function DiaryList({ user }) {
   return (
     <div className="diary-list-page">
       <div className="diary-list-header">
-        <h1 className="diary-list-title">🌷 나의 일기</h1>
+        <div className="diary-list-heading">
+          <h1 className="diary-list-title">🌷 나의 일기</h1>
+          {streak > 0 && (
+            <span className="diary-streak-badge">🔥 {streak}일 연속 기록 중</span>
+          )}
+        </div>
         <button
           type="button"
           className="diary-write-button"

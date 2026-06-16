@@ -16,6 +16,7 @@ import AiResult from "./AiResult";
 import MediaCapture from "./MediaCapture";
 import { buildAnalysisPrompt, parseAnalysis } from "../utils/aiAnalysis";
 import { generateCoverImage } from "../utils/coverImage";
+import { EMOTIONS } from "../utils/emotions";
 import { useCoverImageSetting } from "../hooks/useCoverImageSetting";
 import { useGuideQuestion } from "../hooks/useGuideQuestion";
 import { useVoiceInput } from "../hooks/useVoiceInput";
@@ -336,12 +337,40 @@ function DiaryEditor({ user, onSaved }) {
         <SkeletonResult />
       ) : (
         analysis && (
-          <AiResult
-            data={analysis}
-            coverImage={coverImage}
-            onRegenerate={analysis.imagePrompt ? handleRegenerateCover : null}
-            regenerating={generatingCover}
-          />
+          <>
+            <AiResult
+              data={analysis}
+              coverImage={coverImage}
+              onRegenerate={analysis.imagePrompt ? handleRegenerateCover : null}
+              regenerating={generatingCover}
+            />
+            <div className="emotion-override">
+              <span className="emotion-override-label">
+                AI가 짐작한 감정이 다른가요? 직접 골라보세요
+              </span>
+              <div className="emotion-override-chips">
+                {EMOTIONS.map((e) => (
+                  <button
+                    key={e.key}
+                    type="button"
+                    className={`emotion-override-chip ${
+                      analysis.emotion === e.key ? "active" : ""
+                    }`}
+                    style={
+                      analysis.emotion === e.key
+                        ? { background: e.color, borderColor: e.color, color: "#fff" }
+                        : undefined
+                    }
+                    onClick={() =>
+                      setAnalysis((a) => ({ ...a, emotion: e.key }))
+                    }
+                  >
+                    {e.emoji} {e.key}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </>
         )
       )}
 

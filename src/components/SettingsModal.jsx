@@ -8,6 +8,7 @@ import { useGuideQuestion } from "../hooks/useGuideQuestion";
 import { requestNotificationPermission, sendNotificationNow } from "../utils/notifyActions";
 import { pickMessage } from "../utils/notify";
 import ExportModal from "./ExportModal";
+import AppLockSettings from "./AppLockSettings";
 import "./SettingsModal.css";
 
 // 켜고 끄는 토글 스위치
@@ -30,7 +31,7 @@ const isIos = () =>
   typeof navigator !== "undefined" &&
   /iphone|ipad|ipod/i.test(navigator.userAgent);
 
-function SettingsModal({ user, city, onSaveCity, onClose, onToast }) {
+function SettingsModal({ user, city, onSaveCity, onClose, onToast, appLock }) {
   const [input, setInput] = useState(city || "");
   const { enabled: coverEnabled, toggle: toggleCover } = useCoverImageSetting();
   const { settings: notify, update: updateNotify } = useNotificationSettings();
@@ -160,6 +161,9 @@ function SettingsModal({ user, city, onSaveCity, onClose, onToast }) {
             </div>
           )}
         </div>
+
+        {/* 앱 잠금 */}
+        {appLock && <AppLockSettings appLock={appLock} onToast={onToast} />}
 
         {/* 오늘의 질문 */}
         <div className="settings-section settings-toggle-row">

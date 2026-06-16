@@ -1,0 +1,119 @@
+/* src/components/LockScreen.css */
+
+.lock-page {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+  background: linear-gradient(135deg, #d9c9f0 0%, #a18cd1 50%, #8e6fd6 100%);
+}
+
+.lock-card {
+  width: 100%;
+  max-width: 360px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(10px);
+  border-radius: 28px;
+  padding: 44px 32px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(110, 80, 160, 0.35);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.lock-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(161, 140, 209, 0.16);
+  color: #8e6fd6;
+  margin-bottom: 16px;
+}
+
+.lock-title {
+  margin: 0 0 8px;
+  font-size: 22px;
+  font-weight: 800;
+  color: #4a3f55;
+}
+
+.lock-subtitle {
+  margin: 0 0 24px;
+  font-size: 14px;
+  color: #8a7e92;
+}
+
+.lock-input {
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
+  letter-spacing: 6px;
+  font-size: 20px;
+  padding: 14px 18px;
+  border: 2px solid #f0e6f6;
+  border-radius: 16px;
+  font-family: inherit;
+  color: #4a3f55;
+  background: #fdfbff;
+}
+
+.lock-input:focus {
+  outline: none;
+  border-color: #c9a8e6;
+  box-shadow: 0 0 0 4px rgba(201, 168, 230, 0.18);
+}
+
+.lock-error {
+  margin: 12px 0 0;
+  font-size: 13px;
+  color: #e0405b;
+}
+
+.lock-button {
+  width: 100%;
+  margin-top: 18px;
+  padding: 14px 20px;
+  border: none;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #a18cd1 0%, #8e6fd6 50%, #c86dd7 100%);
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 22px rgba(150, 110, 215, 0.4);
+}
+
+.lock-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.lock-hint {
+  margin: 20px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #a89c96;
+}
+
+[data-theme="dark"] .lock-card {
+  background: rgba(42, 38, 32, 0.94);
+}
+[data-theme="dark"] .lock-title {
+  color: #e8dcc8;
+}
+[data-theme="dark"] .lock-subtitle,
+[data-theme="dark"] .lock-hint {
+  color: #b8ad9a;
+}
+[data-theme="dark"] .lock-input {
+  background: #221f1a;
+  border-color: #3a342a;
+  color: #e8dcc8;
+}

@@ -39,11 +39,26 @@ import {
   buildMarkdown,
   buildChatMarkdown,
 } from "../src/utils/exportDiary.js";
+import { calculateStreak } from "../src/utils/streak.js";
+import { diariesOnDate, withDiaryContext } from "../src/utils/chatContext.js";
+import { hashPin } from "../src/utils/appLock.js";
 
 let passed = 0;
 function test(name, fn) {
   try {
     fn();
+    passed += 1;
+    console.log(`  ✓ ${name}`);
+  } catch (err) {
+    console.error(`  ✗ ${name}\n    ${err.message}`);
+    process.exitCode = 1;
+  }
+}
+
+// 비동기 검증(crypto.subtle 등)을 위한 버전. 호출부에서 await 해야 합니다.
+async function testAsync(name, fn) {
+  try {
+    await fn();
     passed += 1;
     console.log(`  ✓ ${name}`);
   } catch (err) {
@@ -310,6 +325,66 @@ test("buildChatMarkdown formats roles", () => {
 });
 test("buildChatMarkdown empty → empty string", () =>
   assert.equal(buildChatMarkdown([]), ""));
+
+console.log("streak");
+const DAY_MS = 24 * 60 * 60 * 1000;
+test("counts consecutive days ending today", () => {
+  const now = new Date("2026-06-15T12:00:00").getTime();
+  const d = [
+    { createdAt: now },
+    { createdAt: now - DAY_MS },
+    { createdAt: now - 2 * DAY_MS },
+  ];
+  assert.equal(calculateStreak(d, now), 3);
+});
+test("counts streak still alive if today not written yet", () => {
+  const now = new Date("2026-06-15T08:00:00").getTime();
+  const d = [{ createdAt: now - DAY_MS }, { createdAt: now - 2 * DAY_MS }];
+  assert.equal(calculateStreak(d, now), 2);
+});
+test("breaks on gap", () => {
+  const now = new Date("2026-06-15T12:00:00").getTime();
+  const d = [{ createdAt: now }, { createdAt: now - 2 * DAY_MS }];
+  assert.equal(calculateStreak(d, now), 1);
+});
+test("zero when nothing written recently", () => {
+  const now = new Date("2026-06-15T12:00:00").getTime();
+  const d = [{ createdAt: now - 5 * DAY_MS }];
+  assert.equal(calculateStreak(d, now), 0);
+});
+test("empty diaries → 0", () => assert.equal(calculateStreak([], Date.now()), 0));
+
+console.log("chatContext");
+test("diariesOnDate filters by date key", () => {
+  const d = [
+    { content: "a", createdAt: new Date("2026-06-15T10:00:00").getTime() },
+    { content: "b", createdAt: new Date("2026-06-14T10:00:00").getTime() },
+  ];
+  const r = diariesOnDate(d, "2026-06-15");
+  assert.equal(r.length, 1);
+  assert.equal(r[0].content, "a");
+});
+test("withDiaryContext returns base when no entries", () => {
+  assert.equal(withDiaryContext("base", []), "base");
+});
+test("withDiaryContext appends summary when entries exist", () => {
+  const out = withDiaryContext("base", [{ emotion: "기쁨", content: "좋은 하루" }]);
+  assert.ok(out.includes("base"));
+  assert.ok(out.includes("기쁨"));
+  assert.ok(out.includes("좋은 하루"));
+});
+
+console.log("appLock");
+await testAsync("hashPin is deterministic", async () => {
+  const a = await hashPin("1234");
+  const b = await hashPin("1234");
+  assert.equal(a, b);
+});
+await testAsync("hashPin differs for different pins", async () => {
+  const a = await hashPin("1234");
+  const b = await hashPin("4321");
+  assert.notEqual(a, b);
+});
 
 console.log(`\n${passed} assertions passed.`);
 if (process.exitCode === 1) {
