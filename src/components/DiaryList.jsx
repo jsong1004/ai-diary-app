@@ -52,22 +52,13 @@ function Highlighted({ text, term }) {
   );
 }
 
-// 카드/모달 상단 표지
-// 우선순위: 첨부 미디어(사진/동영상) > AI 표지 이미지 > 감정 그라데이션
+// 카드/모달 상단 표지 (AI 표지 이미지 > 감정 그라데이션)
+// 사용자가 첨부한 사진/동영상은 표지가 아니라 본문 첨부로 따로 보여줍니다.
 function Cover({ diary, large }) {
   const emo = getEmotion(diary.emotion);
-  const media = diary.media;
   return (
     <div className={`diary-cover ${large ? "large" : ""}`}>
-      {media?.type === "video" ? (
-        large ? (
-          <video src={media.dataUrl} controls playsInline />
-        ) : (
-          <video src={media.dataUrl} muted playsInline preload="metadata" />
-        )
-      ) : media?.type === "image" ? (
-        <img src={media.dataUrl} alt="첨부 사진" />
-      ) : diary.coverImage ? (
+      {diary.coverImage ? (
         <img src={diary.coverImage} alt="일기 표지" />
       ) : (
         <div
@@ -287,14 +278,24 @@ function DiaryList({ user }) {
                     <span className="diary-card-date">
                       {formatKoreanDate(diary.createdAt)}
                     </span>
-                    {diary.emotion && (
-                      <span
-                        className="diary-card-emotion"
-                        style={{ background: `${emo.color}22`, color: emo.color }}
-                      >
-                        {emo.emoji} {emo.key}
-                      </span>
-                    )}
+                    <span className="diary-card-meta-right">
+                      {diary.media && (
+                        <span className="diary-card-attach" title="첨부 있음">
+                          {diary.media.type === "video" ? "🎬" : "📷"}
+                        </span>
+                      )}
+                      {diary.emotion && (
+                        <span
+                          className="diary-card-emotion"
+                          style={{
+                            background: `${emo.color}22`,
+                            color: emo.color,
+                          }}
+                        >
+                          {emo.emoji} {emo.key}
+                        </span>
+                      )}
+                    </span>
                   </div>
 
                   <p className="diary-card-content">
@@ -349,6 +350,17 @@ function DiaryList({ user }) {
 
             <h2 className="diary-modal-heading">오늘의 일기</h2>
             <p className="diary-modal-content">{selected.content}</p>
+
+            {/* 첨부한 사진/동영상 */}
+            {selected.media && (
+              <div className="diary-modal-media">
+                {selected.media.type === "video" ? (
+                  <video src={selected.media.dataUrl} controls playsInline />
+                ) : (
+                  <img src={selected.media.dataUrl} alt="첨부 사진" />
+                )}
+              </div>
+            )}
 
             {(selected.emotion || selected.aiComment || selected.comment) && (
               <AiResult data={selected} />

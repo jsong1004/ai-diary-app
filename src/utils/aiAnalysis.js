@@ -6,13 +6,19 @@ const EMOTION_LIST = EMOTIONS.map((e) => e.key).join("/");
 
 // 일기 본문을 받아 AI에게 보낼 분석 프롬프트를 만듭니다.
 // withImage=true면 표지 이미지 묘사(imagePrompt)도 함께 요청합니다.
-export function buildAnalysisPrompt(diaryText, withImage = false) {
+// withMedia=true면 첨부된 사진/영상도 함께 보고 감정을 분석하도록 안내합니다.
+export function buildAnalysisPrompt(diaryText, withImage = false, withMedia = false) {
   const imageField = withImage
     ? `,\n     "imagePrompt": "일기 분위기에 어울리는 이미지 묘사를 영어로 한 문장. 따뜻하고 회화적인 일러스트 스타일, 사람 얼굴은 포함하지 말고 풍경/사물/추상적 분위기로. 예: 'A cozy window with warm sunlight, watercolor style, soft pastel colors'"`
     : "";
 
+  const mediaNote = withMedia
+    ? "함께 첨부된 사진/영상의 분위기·표정·장면도 종합해서 감정을 판단해줘.\n"
+    : "";
+
   return (
     "다음 일기를 분석해서 정확히 아래 JSON 형식으로만 답해줘. 다른 말은 절대 붙이지 마.\n" +
+    mediaNote +
     "{\n" +
     `     "emotion": "주된 감정 (${EMOTION_LIST} 중 하나)",\n` +
     '     "score": 1~5 사이 숫자 (1=매우부정, 5=매우긍정),\n' +

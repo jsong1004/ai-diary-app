@@ -1,7 +1,7 @@
 // src/components/DiaryEditor.jsx
 // AI 감성 일기장의 메인 에디터 화면입니다.
-// 일기를 작성하면 OpenRouter API로 감성 분석(JSON: 감정/점수/코멘트/활동)을 받고,
-// (설정 시) 표지 이미지를 생성한 뒤 Firestore의 'diaries' 컬렉션에 저장합니다.
+// "일기 저장하기"를 누르면 백엔드(OpenRouter)에서 감성 분석(감정/점수/코멘트/활동)과
+// 표지 이미지를 자동으로 생성한 뒤 Firestore의 'diaries' 컬렉션에 저장합니다.
 import { useCallback, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
@@ -12,12 +12,10 @@ import {
 } from "firebase/firestore";
 import { Mic, Paperclip, RefreshCw, Sparkles, X } from "lucide-react";
 import { db } from "../firebase";
-import AiResult from "./AiResult";
 import MediaCapture from "./MediaCapture";
 import { buildAnalysisPrompt, parseAnalysis } from "../utils/aiAnalysis";
 import { generateCoverImage } from "../utils/coverImage";
-import { EMOTIONS } from "../utils/emotions";
-import { useCoverImageSetting } from "../hooks/useCoverImageSetting";
+import { extractVideoFrame } from "../utils/media";
 import { useGuideQuestion } from "../hooks/useGuideQuestion";
 import { useVoiceInput } from "../hooks/useVoiceInput";
 import "./DiaryEditor.css";
@@ -26,39 +24,30 @@ import "./DiaryEditor.css";
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
 const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY;
 const OPENROUTER_MODEL = import.meta.env.VITE_OPENROUTER_MODEL;
+// 사진/동영상이 첨부되면 비전 멀티모달 모델로 이미지까지 함께 분석합니다.
+const VISION_MODEL =
+  import.meta.env.VITE_OPENROUTER_VISION_MODEL || "google/gemini-2.5-flash-lite";
 
 // 로딩 중에 보여줄 동그란 스피너
 function Spinner() {
   return <span className="diary-spinner" aria-hidden="true" />;
 }
 
-// AI 분석 중에 보여줄 스켈레톤(shimmer) 자리표시자
-function SkeletonResult() {
-  return (
-    <div className="diary-ai-card">
-      <div className="diary-ai-header">✨ AI 감성 분석 결과</div>
-      <div className="diary-ai-divider" />
-      <div className="diary-ai-body" aria-hidden="true">
-        <div className="diary-ai-section">
-          <div className="diary-skeleton diary-skeleton-title" />
-          <div className="diary-skeleton diary-skeleton-line" />
-          <div className="diary-skeleton diary-skeleton-line short" />
-        </div>
-        <div className="diary-ai-section">
-          <div className="diary-skeleton diary-skeleton-title" />
-          <div className="diary-skeleton diary-skeleton-line" />
-          <div className="diary-skeleton diary-skeleton-line medium" />
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // 잠시 기다리는 헬퍼 (재시도 사이의 대기에 사용)
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // OpenRouter 분석 호출. 무료 모델은 가끔 429가 나므로 짧게 재시도합니다.
-async function requestAnalysis(diaryText, withImage, retries = 2) {
+// imageDataUrl이 있으면 비전 모델로 사진(또는 동영상 프레임)까지 함께 분석합니다.
+async function requestAnalysis(diaryText, withImage, imageDataUrl, retries = 2) {
+  const model = imageDataUrl ? VISION_MODEL : OPENROUTER_MODEL;
+  const prompt = buildAnalysisPrompt(diaryText, withImage, Boolean(imageDataUrl));
+  const content = imageDataUrl
+    ? [
+        { type: "text", text: prompt },
+        { type: "image_url", image_url: { url: imageDataUrl } },
+      ]
+    : prompt;
+
   const response = await fetch(OPENROUTER_API_URL, {
     method: "POST",
     headers: {
@@ -66,36 +55,30 @@ async function requestAnalysis(diaryText, withImage, retries = 2) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: OPENROUTER_MODEL,
-      messages: [
-        { role: "user", content: buildAnalysisPrompt(diaryText, withImage) },
-      ],
+      model,
+      messages: [{ role: "user", content }],
     }),
   });
 
   if (response.status === 429 && retries > 0) {
     await wait(1500);
-    return requestAnalysis(diaryText, withImage, retries - 1);
+    return requestAnalysis(diaryText, withImage, imageDataUrl, retries - 1);
   }
 
   return response;
 }
 
 function DiaryEditor({ user, onSaved }) {
-  const { enabled: coverEnabled } = useCoverImageSetting();
   const guide = useGuideQuestion();
   const [searchParams] = useSearchParams();
   // 캘린더에서 "이날의 일기 쓰기"로 넘어온 경우의 날짜 (YYYY-MM-DD)
   const dateParam = searchParams.get("date");
 
   const [content, setContent] = useState(""); // 일기 원문
-  const [analysis, setAnalysis] = useState(null); // {emotion,score,comment,activity,imagePrompt}
-  const [coverImage, setCoverImage] = useState(null); // 표지 이미지 data URL
   const [media, setMedia] = useState(null); // 첨부 사진/동영상 { type, dataUrl }
   const [showCapture, setShowCapture] = useState(false);
-  const [analyzing, setAnalyzing] = useState(false);
-  const [generatingCover, setGeneratingCover] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [phase, setPhase] = useState(""); // analyzing | cover | saving
   const [error, setError] = useState("");
   const [saved, setSaved] = useState(false);
 
@@ -106,63 +89,7 @@ function DiaryEditor({ user, onSaved }) {
   }, []);
   const voice = useVoiceInput(appendTranscript);
 
-  // 🤖 AI 감성 분석받기
-  const handleAnalyze = async () => {
-    if (!content.trim()) {
-      setError("먼저 오늘의 일기를 적어 주세요 ✍️");
-      return;
-    }
-
-    setError("");
-    setSaved(false);
-    setCoverImage(null);
-    setAnalyzing(true);
-
-    try {
-      const response = await requestAnalysis(content, coverEnabled);
-
-      if (response.status === 429) {
-        setError("지금 AI가 잠시 붐비고 있어요. 잠시 후 다시 시도해 주세요 🙏");
-        return;
-      }
-      if (!response.ok) {
-        throw new Error(`API 응답 오류 (${response.status})`);
-      }
-
-      const apiData = await response.json();
-      const message = apiData?.choices?.[0]?.message?.content?.trim();
-      if (!message) {
-        throw new Error("AI 응답이 비어 있어요.");
-      }
-
-      const result = parseAnalysis(message);
-      setAnalysis(result);
-
-      // 표지 이미지 자동 생성 (설정이 켜져 있고 묘사가 있을 때만)
-      if (coverEnabled && result.imagePrompt) {
-        setGeneratingCover(true);
-        const cover = await generateCoverImage(result.imagePrompt);
-        setCoverImage(cover); // 실패 시 null
-        setGeneratingCover(false);
-      }
-    } catch (err) {
-      console.error(err);
-      setError("AI 감성 분석에 실패했어요. 잠시 후 다시 시도해 주세요.");
-    } finally {
-      setAnalyzing(false);
-    }
-  };
-
-  // 🎨 표지 다시 그리기
-  const handleRegenerateCover = async () => {
-    if (!analysis?.imagePrompt || generatingCover) return;
-    setGeneratingCover(true);
-    const cover = await generateCoverImage(analysis.imagePrompt);
-    if (cover) setCoverImage(cover);
-    setGeneratingCover(false);
-  };
-
-  // 💾 일기 저장하기 (원문 + 구조화된 분석 + 표지 + userId + createdAt)
+  // 💾 저장하기 — 저장 시 AI 분석 + 표지 이미지를 자동 생성한 뒤 Firestore에 저장
   const handleSave = async () => {
     if (!content.trim()) {
       setError("저장할 일기 내용이 없어요 🌿");
@@ -170,9 +97,41 @@ function DiaryEditor({ user, onSaved }) {
     }
 
     setError("");
+    setSaved(false);
     setSaving(true);
 
     try {
+      // 1) AI 감성 분석 (자동). 첨부 사진/영상이 있으면 그 이미지도 함께 분석합니다.
+      let analysis = null;
+      setPhase("analyzing");
+      let analysisImage = null;
+      if (media?.type === "image") {
+        analysisImage = media.dataUrl;
+      } else if (media?.type === "video") {
+        analysisImage = await extractVideoFrame(media.dataUrl); // 대표 프레임
+      }
+      try {
+        const response = await requestAnalysis(content, true, analysisImage);
+        if (response.ok) {
+          const apiData = await response.json();
+          const message = apiData?.choices?.[0]?.message?.content?.trim();
+          if (message) analysis = parseAnalysis(message);
+        } else {
+          console.error("분석 API 오류", response.status);
+        }
+      } catch (e) {
+        console.error("AI 분석 실패 — 기본값으로 저장", e);
+      }
+
+      // 2) 표지 이미지 자동 생성 (분석의 묘사 사용, best-effort)
+      let cover = "";
+      if (analysis?.imagePrompt) {
+        setPhase("cover");
+        cover = (await generateCoverImage(analysis.imagePrompt)) || "";
+      }
+
+      // 3) Firestore 저장
+      setPhase("saving");
       await addDoc(collection(db, "diaries"), {
         content: content.trim(),
         emotion: analysis?.emotion || "평온",
@@ -181,7 +140,7 @@ function DiaryEditor({ user, onSaved }) {
         activity: analysis?.activity || "",
         // 구버전 화면/검색 호환을 위해 코멘트를 aiComment에도 보관
         aiComment: analysis?.comment || "",
-        coverImage: coverImage || "",
+        coverImage: cover,
         media: media || null,
         userId: user.uid,
         // 캘린더에서 특정 날짜로 작성하면 그 날짜로, 아니면 서버 시간
@@ -191,8 +150,6 @@ function DiaryEditor({ user, onSaved }) {
       });
 
       setContent("");
-      setAnalysis(null);
-      setCoverImage(null);
       setMedia(null);
       setSaved(true);
       if (onSaved) onSaved();
@@ -201,6 +158,7 @@ function DiaryEditor({ user, onSaved }) {
       setError("일기 저장에 실패했어요. 잠시 후 다시 시도해 주세요.");
     } finally {
       setSaving(false);
+      setPhase("");
     }
   };
 
@@ -208,6 +166,16 @@ function DiaryEditor({ user, onSaved }) {
   const handleUseQuestion = () => {
     setContent((c) => `💭 ${guide.question}\n\n${c}`);
   };
+
+  // 저장 버튼 상태별 문구
+  const saveLabel =
+    phase === "analyzing"
+      ? "AI가 마음을 읽는 중..."
+      : phase === "cover"
+      ? "표지 그리는 중..."
+      : phase === "saving"
+      ? "저장 중..."
+      : "💾 일기 저장하기";
 
   return (
     <div className="diary-editor">
@@ -264,6 +232,7 @@ function DiaryEditor({ user, onSaved }) {
           setSaved(false);
         }}
         rows={8}
+        disabled={saving}
       />
 
       {/* 음성 입력 + 사진/동영상 첨부 툴바 */}
@@ -273,7 +242,7 @@ function DiaryEditor({ user, onSaved }) {
             type="button"
             className={`diary-tool ${voice.recording ? "recording" : ""}`}
             onClick={voice.toggle}
-            disabled={voice.busy}
+            disabled={voice.busy || saving}
           >
             <Mic size={16} />
             <span>
@@ -289,6 +258,7 @@ function DiaryEditor({ user, onSaved }) {
           type="button"
           className="diary-tool"
           onClick={() => setShowCapture(true)}
+          disabled={saving}
         >
           <Paperclip size={16} />
           <span>사진·동영상</span>
@@ -318,77 +288,22 @@ function DiaryEditor({ user, onSaved }) {
 
       <button
         type="button"
-        className="diary-analyze-button"
-        onClick={handleAnalyze}
-        disabled={analyzing || saving}
-      >
-        {analyzing ? (
-          <>
-            <Spinner />
-            <span>분석 중...</span>
-          </>
-        ) : (
-          <span>✨ AI 감성 분석받기</span>
-        )}
-      </button>
-
-      {/* AI 감성 분석 결과 (분석 중에는 스켈레톤) */}
-      {analyzing ? (
-        <SkeletonResult />
-      ) : (
-        analysis && (
-          <>
-            <AiResult
-              data={analysis}
-              coverImage={coverImage}
-              onRegenerate={analysis.imagePrompt ? handleRegenerateCover : null}
-              regenerating={generatingCover}
-            />
-            <div className="emotion-override">
-              <span className="emotion-override-label">
-                AI가 짐작한 감정이 다른가요? 직접 골라보세요
-              </span>
-              <div className="emotion-override-chips">
-                {EMOTIONS.map((e) => (
-                  <button
-                    key={e.key}
-                    type="button"
-                    className={`emotion-override-chip ${
-                      analysis.emotion === e.key ? "active" : ""
-                    }`}
-                    style={
-                      analysis.emotion === e.key
-                        ? { background: e.color, borderColor: e.color, color: "#fff" }
-                        : undefined
-                    }
-                    onClick={() =>
-                      setAnalysis((a) => ({ ...a, emotion: e.key }))
-                    }
-                  >
-                    {e.emoji} {e.key}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </>
-        )
-      )}
-
-      <button
-        type="button"
         className="diary-save-button"
         onClick={handleSave}
-        disabled={saving || analyzing}
+        disabled={saving}
       >
         {saving ? (
           <>
             <Spinner />
-            <span>저장 중...</span>
+            <span>{saveLabel}</span>
           </>
         ) : (
-          <span>💾 일기 저장하기</span>
+          <span>{saveLabel}</span>
         )}
       </button>
+      <p className="diary-save-hint">
+        저장하면 AI가 감정 분석과 표지 이미지를 자동으로 만들어 함께 보관해요 ✨
+      </p>
 
       {error && <p className="diary-error">{error}</p>}
       {saved && <p className="diary-success">일기가 따뜻하게 보관되었어요 🌿</p>}

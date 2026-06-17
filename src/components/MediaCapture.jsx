@@ -7,7 +7,9 @@ import "./MediaCapture.css";
 
 const MAX_VIDEO_MS = 5000;
 const PHOTO_MAX = 900; // px
-const MAX_BYTES = 900 * 1024; // dataURL 대략 상한 (Firestore 1MB 여유)
+// Firestore 문서 1MB 한도: base64는 원본의 약 1.37배로 커지므로
+// 영상 원본은 ~600KB 이하로 제한해야 base64 변환 후에도 한도 안에 들어갑니다.
+const VIDEO_MAX_BYTES = 600 * 1024;
 
 // 이미지 파일/캔버스를 최대 변 PHOTO_MAX의 JPEG dataURL로 리사이즈
 function resizeImage(source) {
@@ -62,7 +64,8 @@ function MediaCapture({ onCapture, onClose }) {
     setError("");
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment", width: { ideal: 640 } },
+        // 동영상은 용량을 줄이려고 더 낮은 해상도로 (사진 촬영엔 영향 적음)
+        video: { facingMode: "environment", width: { ideal: 480 } },
         audio: withAudio,
       });
       streamRef.current = stream;
@@ -108,8 +111,8 @@ function MediaCapture({ onCapture, onClose }) {
       : "video/webm";
     const rec = new MediaRecorder(stream, {
       mimeType: mime,
-      videoBitsPerSecond: 600000,
-      audioBitsPerSecond: 64000,
+      videoBitsPerSecond: 400000,
+      audioBitsPerSecond: 48000,
     });
     rec.ondataavailable = (e) => e.data.size && chunksRef.current.push(e.data);
     rec.onstop = async () => {
@@ -117,8 +120,8 @@ function MediaCapture({ onCapture, onClose }) {
       stopStream();
       setRecording(false);
       setCountdown(0);
-      if (blob.size > MAX_BYTES * 1.4) {
-        setError("동영상이 너무 커요. 더 짧게 찍어 주세요.");
+      if (blob.size > VIDEO_MAX_BYTES) {
+        setError("동영상이 너무 커요. 더 짧게(5초 이내) 찍어 주세요.");
         setMode("choose");
         return;
       }
@@ -161,8 +164,8 @@ function MediaCapture({ onCapture, onClose }) {
           setError("동영상은 5초 이내만 첨부할 수 있어요.");
           return;
         }
-        if (file.size > MAX_BYTES * 1.4) {
-          setError("동영상 용량이 커요. 더 짧고 작은 영상을 선택해 주세요.");
+        if (file.size > VIDEO_MAX_BYTES) {
+          setError("동영상 용량이 커요(600KB 이내). 더 짧고 작은 영상을 선택해 주세요.");
           return;
         }
         const dataUrl = await blobToDataUrl(file);

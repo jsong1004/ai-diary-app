@@ -366,6 +366,14 @@
   }
 }
 
+.diary-save-hint {
+  margin: 10px 0 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #a89cb0;
+  text-align: center;
+}
+
 .diary-error {
   margin: 16px 0 0;
   font-size: 14px;

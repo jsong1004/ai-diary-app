@@ -2,7 +2,7 @@
 // 따뜻한 감성 상담가 AI와 대화하는 채팅 화면입니다.
 // 상담 내용은 '일별 세션'으로 저장/조회합니다 — 날짜 칩으로 지난 상담을 다시 볼 수 있고,
 // 과거 날짜는 읽기 전용이며 오늘만 새 대화를 이어갈 수 있습니다.
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   addDoc,
   collection,
@@ -13,10 +13,11 @@ import {
   serverTimestamp,
   where,
 } from "firebase/firestore";
-import { Copy, Trash2 } from "lucide-react";
+import { Copy, Mic, Trash2 } from "lucide-react";
 import { db } from "../firebase";
 import { renderMarkdown } from "../utils/aiMarkdown";
 import { diariesOnDate, withDiaryContext } from "../utils/chatContext";
+import { useVoiceInput } from "../hooks/useVoiceInput";
 import Toast from "./Toast";
 import "./ChatBot.css";
 
@@ -93,6 +94,12 @@ function ChatBot({ user }) {
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const bottomRef = useRef(null);
+
+  // 🎤 음성 입력 — 전사된 텍스트를 입력창에 덧붙임
+  const appendVoice = useCallback((text) => {
+    setInput((v) => (v ? `${v} ${text}` : text));
+  }, []);
+  const voice = useVoiceInput(appendVoice);
 
   // 이전 대화 기록 로드 — dateKey가 없는 구버전 메시지는 timestamp에서 유추
   useEffect(() => {
@@ -395,9 +402,27 @@ function ChatBot({ user }) {
       {/* 오늘만 입력 가능, 과거 세션은 읽기 전용 */}
       {isToday ? (
         <div className="chatbot-input-bar">
+          {voice.supported && (
+            <button
+              type="button"
+              className={`chatbot-mic-button ${voice.recording ? "recording" : ""}`}
+              onClick={voice.toggle}
+              disabled={voice.busy}
+              aria-label={voice.recording ? "녹음 종료" : "음성 입력"}
+              title={voice.recording ? "녹음 종료" : "음성 입력"}
+            >
+              <Mic size={18} />
+            </button>
+          )}
           <textarea
             className="chatbot-input"
-            placeholder="마음을 들려주세요..."
+            placeholder={
+              voice.recording
+                ? "● 녹음 중..."
+                : voice.busy
+                ? "음성 변환 중..."
+                : "마음을 들려주세요..."
+            }
             value={input}
             onChange={(event) => setInput(event.target.value)}
             onKeyDown={handleKeyDown}

@@ -119,6 +119,17 @@
   margin-bottom: 10px;
 }
 
+.diary-card-meta-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.diary-card-attach {
+  font-size: 14px;
+  line-height: 1;
+}
+
 .diary-card-emotion {
   display: inline-flex;
   align-items: center;
@@ -128,6 +139,23 @@
   font-size: 12px;
   font-weight: 700;
   white-space: nowrap;
+}
+
+/* 상세 모달 첨부 미디어 */
+.diary-modal-media {
+  margin: 16px 0;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #f3ecf8;
+}
+
+.diary-modal-media img,
+.diary-modal-media video {
+  width: 100%;
+  max-height: 360px;
+  object-fit: contain;
+  display: block;
+  background: #000;
 }
 
 /* 표지 (이미지 또는 감정 그라데이션) */

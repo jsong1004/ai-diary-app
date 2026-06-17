@@ -42,9 +42,10 @@ jobs:
           # 빌드 시점에 Vite로 주입되는 환경 변수.
           # API 키는 리포지토리 시크릿, 모델명은 변수(없으면 기본값) 사용.
           VITE_OPENROUTER_API_KEY: ${{ secrets.VITE_OPENROUTER_API_KEY }}
-          VITE_OPENROUTER_MODEL: ${{ vars.VITE_OPENROUTER_MODEL || 'nvidia/nemotron-3-nano-30b-a3b:free' }}
+          VITE_OPENROUTER_MODEL: ${{ vars.VITE_OPENROUTER_MODEL || 'minimax/minimax-m3' }}
           VITE_OPENROUTER_IMAGE_MODEL: ${{ vars.VITE_OPENROUTER_IMAGE_MODEL || 'google/gemini-2.5-flash-image' }}
-          VITE_OPENROUTER_AUDIO_MODEL: ${{ vars.VITE_OPENROUTER_AUDIO_MODEL || 'nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free' }}
+          VITE_OPENROUTER_AUDIO_MODEL: ${{ vars.VITE_OPENROUTER_AUDIO_MODEL || 'google/gemini-2.5-flash-lite' }}
+          VITE_OPENROUTER_VISION_MODEL: ${{ vars.VITE_OPENROUTER_VISION_MODEL || 'minimax/minimax-m3' }}
         run: npm run build
 
       - name: Deploy to Firebase Hosting (live)

@@ -1,8 +1,7 @@
 // src/components/SettingsModal.jsx
-// 통합 설정 모달: 도시(날씨) · 표지 이미지 · 매일 알림 · 오늘의 질문 · 내보내기
+// 통합 설정 모달: 도시(날씨) · 매일 알림 · 오늘의 질문 · 내보내기
 import { useState } from "react";
 import { Bell, Download, MapPin, X } from "lucide-react";
-import { useCoverImageSetting } from "../hooks/useCoverImageSetting";
 import { useNotificationSettings } from "../hooks/useNotificationSettings";
 import { useGuideQuestion } from "../hooks/useGuideQuestion";
 import { requestNotificationPermission, sendNotificationNow } from "../utils/notifyActions";
@@ -33,7 +32,6 @@ const isIos = () =>
 
 function SettingsModal({ user, city, onSaveCity, onClose, onToast, appLock }) {
   const [input, setInput] = useState(city || "");
-  const { enabled: coverEnabled, toggle: toggleCover } = useCoverImageSetting();
   const { settings: notify, update: updateNotify } = useNotificationSettings();
   const { hidden: guideHidden, setHidden: setGuideHidden } = useGuideQuestion();
   const [showExport, setShowExport] = useState(false);
@@ -101,17 +99,6 @@ function SettingsModal({ user, city, onSaveCity, onClose, onToast, appLock }) {
             </button>
           </div>
           <p className="settings-hint">날씨에 따라 배경색이 바뀌어요.</p>
-        </div>
-
-        {/* 표지 이미지 */}
-        <div className="settings-section settings-toggle-row">
-          <div>
-            <div className="settings-label">🎨 표지 이미지 자동 생성</div>
-            <p className="settings-hint">
-              저장 시 AI가 표지를 그려요. (이미지당 약간의 비용)
-            </p>
-          </div>
-          <Switch on={coverEnabled} onClick={toggleCover} label="표지 이미지" />
         </div>
 
         {/* 알림 */}

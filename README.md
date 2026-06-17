@@ -81,9 +81,10 @@ npm install
 프로젝트 루트에 `.env` 파일을 만듭니다:
 ```bash
 VITE_OPENROUTER_API_KEY=sk-or-...           # OpenRouter API 키
-VITE_OPENROUTER_MODEL=nvidia/nemotron-3-nano-30b-a3b:free   # 감성 분석/챗봇 모델
-VITE_OPENROUTER_AUDIO_MODEL=nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free  # (선택) 음성 입력 전사 모델
-VITE_OPENROUTER_IMAGE_MODEL=google/gemini-2.5-flash-image  # (선택) 표지 이미지 모델
+VITE_OPENROUTER_MODEL=minimax/minimax-m3                    # 감성 분석/챗봇 모델 (멀티모달)
+VITE_OPENROUTER_AUDIO_MODEL=google/gemini-2.5-flash-lite    # 음성 입력 전사 모델
+VITE_OPENROUTER_VISION_MODEL=minimax/minimax-m3             # 사진/동영상 감정 분석 모델
+VITE_OPENROUTER_IMAGE_MODEL=google/gemini-2.5-flash-image   # 표지 이미지 모델
 ```
 
 > Firebase 설정값은 `src/firebase.js`의 `firebaseConfig`에 입력합니다.

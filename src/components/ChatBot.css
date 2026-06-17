@@ -247,6 +247,49 @@
   cursor: not-allowed;
 }
 
+/* 음성 입력 마이크 버튼 */
+.chatbot-mic-button {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border: 1.5px solid #e2d5ee;
+  border-radius: 50%;
+  background: transparent;
+  color: #8e5fc0;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.chatbot-mic-button:hover:not(:disabled) {
+  background: rgba(161, 140, 209, 0.12);
+}
+
+.chatbot-mic-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.chatbot-mic-button.recording {
+  border-color: #e0405b;
+  color: #e0405b;
+  background: rgba(224, 64, 91, 0.1);
+  animation: chat-mic-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes chat-mic-pulse {
+  50% {
+    background: rgba(224, 64, 91, 0.22);
+  }
+}
+
+[data-theme="dark"] .chatbot-mic-button {
+  border-color: #3a342a;
+  color: #c9a8e6;
+}
+
 /* ===== 일별 세션 날짜 칩 ===== */
 .chat-dates {
   display: flex;
