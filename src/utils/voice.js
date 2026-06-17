@@ -94,11 +94,16 @@ export async function transcribeAudio(wavBase64) {
       model: AUDIO_MODEL,
       messages: [
         {
+          role: "system",
+          content:
+            "당신은 한국어 음성 받아쓰기 전문가입니다. 입력 오디오는 한국어 음성이며, 들리는 그대로 한국어(한글)로만 정확히 전사합니다. 절대 일본어·중국어·영어 등 다른 언어로 번역하거나 바꾸지 않습니다.",
+        },
+        {
           role: "user",
           content: [
             {
               type: "text",
-              text: "다음 오디오를 한국어로 정확히 받아쓰기 해줘. 설명이나 따옴표 없이 전사된 문장만 출력해.",
+              text: "이 오디오는 한국어입니다. 한국어(한글)로만 받아쓰기 하세요. 다른 언어로 번역/변환 금지. 설명·따옴표 없이 받아쓴 한국어 문장만 출력하세요.",
             },
             { type: "input_audio", input_audio: { data: wavBase64, format: "wav" } },
           ],

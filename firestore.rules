@@ -1,0 +1,39 @@
+rules_version = '2';
+
+// AI 감성 일기장 보안 규칙
+// 모든 데이터는 로그인한 본인만 읽고 쓸 수 있습니다.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+    function ownsNew() {
+      return signedIn() && request.resource.data.userId == request.auth.uid;
+    }
+    function ownsExisting() {
+      return signedIn() && resource.data.userId == request.auth.uid;
+    }
+
+    // 일기: 본인 문서만
+    match /diaries/{id} {
+      allow read: if ownsExisting();
+      allow create: if ownsNew();
+      allow update: if ownsExisting() && ownsNew();
+      allow delete: if ownsExisting();
+    }
+
+    // 챗봇 메시지: 본인 문서만
+    match /chatMessages/{id} {
+      allow read: if ownsExisting();
+      allow create: if ownsNew();
+      allow update: if ownsExisting() && ownsNew();
+      allow delete: if ownsExisting();
+    }
+
+    // 사용자 설정(도시 등): 문서 ID == 본인 uid
+    match /users/{uid} {
+      allow read, write: if signedIn() && request.auth.uid == uid;
+    }
+  }
+}

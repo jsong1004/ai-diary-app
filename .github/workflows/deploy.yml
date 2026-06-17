@@ -52,5 +52,5 @@ jobs:
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          projectId: ai-diary-js-499617
+          projectId: ai-diary-js
           channelId: live
