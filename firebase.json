@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "site": "ai-diary-js",
     "public": "dist",
     "ignore": [
       "firebase.json",
